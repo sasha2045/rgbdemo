@@ -21,6 +21,8 @@
 #include <ntk/camera/calibration.h>
 #ifdef NESTK_USE_OPENNI
 # include <ntk/camera/openni_grabber.h>
+#elif NESTK_USE_OPENNI2
+# include <ntk/camera/openni2_grabber.h>
 #endif
 
 #include <iostream>
@@ -88,11 +90,15 @@ int main (int argc, char** argv)
 
 #ifdef NESTK_USE_OPENNI
     OpenniDriver* ni_driver = 0;
+#elif NESTK_USE_OPENNI2
+    Openni2Driver* ni_driver = 0;
 #endif
 
     bool use_openni = !opt::freenect();
 #ifndef NESTK_USE_OPENNI
-    use_openni = false;
+    #ifndef NESTK_USE_OPENNI2
+        use_openni = false;
+    #endif
 #endif
 
     if (opt::image() || opt::directory())
@@ -110,6 +116,21 @@ int main (int argc, char** argv)
         if (!ni_driver) ni_driver = new OpenniDriver();
         OpenniGrabber* k_grabber = new OpenniGrabber(*ni_driver);
         k_grabber->setTrackUsers(false);
+        if (opt::high_resolution())
+            k_grabber->setHighRgbResolution(true);
+        k_grabber->initialize();
+        QDir::setCurrent(prev.absolutePath());
+        grabber = k_grabber;
+    }
+#elif NESTK_USE_OPENNI2
+    else if (use_openni)
+    {
+        // Config dir is supposed to be next to the binaries.
+        QDir prev = QDir::current();
+        QDir::setCurrent(QApplication::applicationDirPath());
+        if (!ni_driver) ni_driver = new Openni2Driver();
+        Openni2Grabber* k_grabber = new Openni2Grabber(*ni_driver);
+       // k_grabber->setTrackUsers(false);
         if (opt::high_resolution())
             k_grabber->setHighRgbResolution(true);
         k_grabber->initialize();

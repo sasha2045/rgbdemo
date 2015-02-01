@@ -28,6 +28,7 @@ cmake .. \
     -Wno-dev \
     -DCMAKE_BUILD_TYPE=RelWithDebInfo \
     -DCMAKE_VERBOSE_MAKEFILE=1 \
+    -DNESTK_USE_OPENNI2=1 \
     $*
 
 echo "Program configured in directory build."
